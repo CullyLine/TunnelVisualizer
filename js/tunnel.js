@@ -89,27 +89,27 @@ class TunnelSegment {
         // Create 4 walls of the same vertices,
         // rotate them accordingly and position them.
         
-        // Left wall.
-        this.vertices.push(-tunnelSegmentWidth,-tunnelSegmentHeight,0);
-        this.vertices.push(-tunnelSegmentWidth,-tunnelSegmentHeight,-tunnelSegmentDepth);
-        this.vertices.push(-tunnelSegmentWidth,tunnelSegmentHeight,-tunnelSegmentDepth);
-        this.vertices.push(-tunnelSegmentWidth,-tunnelSegmentHeight,0);
-        this.vertices.push(-tunnelSegmentWidth,tunnelSegmentHeight,0);
-        this.vertices.push(-tunnelSegmentWidth,tunnelSegmentHeight,-tunnelSegmentDepth);
-        // Bottom wall.
-        this.vertices.push(-tunnelSegmentWidth,-tunnelSegmentHeight,0);
-        this.vertices.push(-tunnelSegmentWidth,-tunnelSegmentHeight,-tunnelSegmentDepth);
-        this.vertices.push(tunnelSegmentWidth,-tunnelSegmentHeight,-tunnelSegmentDepth);
-        this.vertices.push(-tunnelSegmentWidth,-tunnelSegmentHeight,0);
-        this.vertices.push(tunnelSegmentWidth,-tunnelSegmentHeight,0);
-        this.vertices.push(tunnelSegmentWidth,-tunnelSegmentHeight,-tunnelSegmentDepth);
-        // Right wall.
-        this.vertices.push(tunnelSegmentWidth,-tunnelSegmentHeight,0);
-        this.vertices.push(tunnelSegmentWidth,-tunnelSegmentHeight,-tunnelSegmentDepth);
-        this.vertices.push(tunnelSegmentWidth,tunnelSegmentHeight,-tunnelSegmentDepth);
-        this.vertices.push(tunnelSegmentWidth,-tunnelSegmentHeight,0);
-        this.vertices.push(tunnelSegmentWidth,tunnelSegmentHeight,0);
-        this.vertices.push(tunnelSegmentWidth,tunnelSegmentHeight,-tunnelSegmentDepth);
+        // // Left wall.
+        // this.vertices.push(-tunnelSegmentWidth,-tunnelSegmentHeight,0);
+        // this.vertices.push(-tunnelSegmentWidth,-tunnelSegmentHeight,-tunnelSegmentDepth);
+        // this.vertices.push(-tunnelSegmentWidth,tunnelSegmentHeight,-tunnelSegmentDepth);
+        // this.vertices.push(-tunnelSegmentWidth,-tunnelSegmentHeight,0);
+        // this.vertices.push(-tunnelSegmentWidth,tunnelSegmentHeight,0);
+        // this.vertices.push(-tunnelSegmentWidth,tunnelSegmentHeight,-tunnelSegmentDepth);
+        // // Bottom wall.
+        // this.vertices.push(-tunnelSegmentWidth,-tunnelSegmentHeight,0);
+        // this.vertices.push(-tunnelSegmentWidth,-tunnelSegmentHeight,-tunnelSegmentDepth);
+        // this.vertices.push(tunnelSegmentWidth,-tunnelSegmentHeight,-tunnelSegmentDepth);
+        // this.vertices.push(-tunnelSegmentWidth,-tunnelSegmentHeight,0);
+        // this.vertices.push(tunnelSegmentWidth,-tunnelSegmentHeight,0);
+        // this.vertices.push(tunnelSegmentWidth,-tunnelSegmentHeight,-tunnelSegmentDepth);
+        // // Right wall.
+        // this.vertices.push(tunnelSegmentWidth,-tunnelSegmentHeight,0);
+        // this.vertices.push(tunnelSegmentWidth,-tunnelSegmentHeight,-tunnelSegmentDepth);
+        // this.vertices.push(tunnelSegmentWidth,tunnelSegmentHeight,-tunnelSegmentDepth);
+        // this.vertices.push(tunnelSegmentWidth,-tunnelSegmentHeight,0);
+        // this.vertices.push(tunnelSegmentWidth,tunnelSegmentHeight,0);
+        // this.vertices.push(tunnelSegmentWidth,tunnelSegmentHeight,-tunnelSegmentDepth);
         // Top wall.
         this.vertices.push(-tunnelSegmentWidth,tunnelSegmentHeight,0);
         this.vertices.push(-tunnelSegmentWidth,tunnelSegmentHeight,-tunnelSegmentDepth);
@@ -133,12 +133,34 @@ class TunnelSegment {
         var l = getRandomInt(0, 100); // b is a random number between 0 - 100
         var hslColor = `hsl(${h}, ${s}%, ${l}%)`;
         
-        var buffMaterial = new THREE.MeshBasicMaterial( { color: hslColor, side: THREE.DoubleSide } );
+        var buffMaterial = new THREE.MeshBasicMaterial( { color: hslColor, side: THREE.DoubleSide} );
         this.buffGeometry.setAttribute( 'position', new THREE.Float32BufferAttribute( this.vertices, 3 ) );
-        var wallMesh = new THREE.Mesh(this.buffGeometry, buffMaterial);
+        var topWallMesh = new THREE.Mesh(this.buffGeometry, buffMaterial);
+
+        // The new system is to create one template mesh and then make copies of those
+        // for the remaining walls.
+
+        var bottomWallMesh = topWallMesh.clone(true);
+        console.log(-tunnelSegmentHeight);
+        bottomWallMesh.position.setY(0);
+        bottomWallMesh.position.setZ(-tunnelSegmentDepth);
+        bottomWallMesh.rotateX(Math.PI);
+
+        var leftWallMesh = topWallMesh.clone(true);
+        console.log(-tunnelSegmentHeight);
+        leftWallMesh.position.setY(0);
+        leftWallMesh.position.setZ(-tunnelSegmentDepth);
+        leftWallMesh.rotateX(Math.PI);
+
+        var bottomWallMesh = topWallMesh.clone(true);
+        console.log(-tunnelSegmentHeight);
+        bottomWallMesh.position.setY(0);
+        bottomWallMesh.position.setZ(-tunnelSegmentDepth);
+        bottomWallMesh.rotateX(Math.PI);
 
         this.Group = new THREE.Group();
-        this.Group.add(wallMesh);
+        this.Group.add(topWallMesh);
+        this.Group.add(bottomWallMesh);
 
         scene.add(this.Group);
 
