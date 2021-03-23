@@ -4,6 +4,7 @@ class Tunnel extends Visual {
         this.keybind = ['Control', 'Shift', 'Alt', 'F1'];
         this.title = 'Tunnel';
         this.Segments = [];
+        // s
     }
 
     animate() {
@@ -86,38 +87,6 @@ class TunnelSegment {
         this.buffGeometry = new THREE.BufferGeometry();
         this.vertices = [];
 
-        // Create 4 walls of the same vertices,
-        // rotate them accordingly and position them.
-        
-        // // Left wall.
-        // this.vertices.push(-tunnelSegmentWidth,-tunnelSegmentHeight,0);
-        // this.vertices.push(-tunnelSegmentWidth,-tunnelSegmentHeight,-tunnelSegmentDepth);
-        // this.vertices.push(-tunnelSegmentWidth,tunnelSegmentHeight,-tunnelSegmentDepth);
-        // this.vertices.push(-tunnelSegmentWidth,-tunnelSegmentHeight,0);
-        // this.vertices.push(-tunnelSegmentWidth,tunnelSegmentHeight,0);
-        // this.vertices.push(-tunnelSegmentWidth,tunnelSegmentHeight,-tunnelSegmentDepth);
-        // // Bottom wall.
-        // this.vertices.push(-tunnelSegmentWidth,-tunnelSegmentHeight,0);
-        // this.vertices.push(-tunnelSegmentWidth,-tunnelSegmentHeight,-tunnelSegmentDepth);
-        // this.vertices.push(tunnelSegmentWidth,-tunnelSegmentHeight,-tunnelSegmentDepth);
-        // this.vertices.push(-tunnelSegmentWidth,-tunnelSegmentHeight,0);
-        // this.vertices.push(tunnelSegmentWidth,-tunnelSegmentHeight,0);
-        // this.vertices.push(tunnelSegmentWidth,-tunnelSegmentHeight,-tunnelSegmentDepth);
-        // // Right wall.
-        // this.vertices.push(tunnelSegmentWidth,-tunnelSegmentHeight,0);
-        // this.vertices.push(tunnelSegmentWidth,-tunnelSegmentHeight,-tunnelSegmentDepth);
-        // this.vertices.push(tunnelSegmentWidth,tunnelSegmentHeight,-tunnelSegmentDepth);
-        // this.vertices.push(tunnelSegmentWidth,-tunnelSegmentHeight,0);
-        // this.vertices.push(tunnelSegmentWidth,tunnelSegmentHeight,0);
-        // this.vertices.push(tunnelSegmentWidth,tunnelSegmentHeight,-tunnelSegmentDepth);
-        // Top wall.
-        this.vertices.push(-tunnelSegmentWidth,tunnelSegmentHeight,0);
-        this.vertices.push(-tunnelSegmentWidth,tunnelSegmentHeight,-tunnelSegmentDepth);
-        this.vertices.push(tunnelSegmentWidth,tunnelSegmentHeight,-tunnelSegmentDepth);
-        this.vertices.push(-tunnelSegmentWidth,tunnelSegmentHeight,0);
-        this.vertices.push(tunnelSegmentWidth,tunnelSegmentHeight,0);
-        this.vertices.push(tunnelSegmentWidth,tunnelSegmentHeight,-tunnelSegmentDepth);
-
         //currentColor += 0x3333BBEF;
         //currentColor += 0x01010F;
         //buffMaterial.color = currentColor;
@@ -128,39 +97,60 @@ class TunnelSegment {
         // var a = getRandomInt(0, 255); // a is a random number between 200 - 255
         // string color = `rgb(${r}, ${g}, ${b}, ${a})`;
 
+        // Create 4 walls of the same vertices,
+        // rotate them accordingly and position them.
+
+        // Top wall.
         var h = getRandomInt(0, 360); // r is a random number between 0 - 255
         var s = getRandomInt(0, 100); // g is a random number betwen 100 - 200
         var l = getRandomInt(0, 100); // b is a random number between 0 - 100
         var hslColor = `hsl(${h}, ${s}%, ${l}%)`;
+
+        // Wall vertices
+        this.vertices.push(-tunnelSegmentWidth,tunnelSegmentHeight,0);
+        this.vertices.push(-tunnelSegmentWidth,tunnelSegmentHeight,-tunnelSegmentDepth);
+        this.vertices.push(tunnelSegmentWidth,tunnelSegmentHeight,-tunnelSegmentDepth);
+        this.vertices.push(-tunnelSegmentWidth,tunnelSegmentHeight,0);
+        this.vertices.push(tunnelSegmentWidth,tunnelSegmentHeight,0);
+        this.vertices.push(tunnelSegmentWidth,tunnelSegmentHeight,-tunnelSegmentDepth);
         
         var buffMaterial = new THREE.MeshBasicMaterial( { color: hslColor, side: THREE.DoubleSide} );
         this.buffGeometry.setAttribute( 'position', new THREE.Float32BufferAttribute( this.vertices, 3 ) );
         var topWallMesh = new THREE.Mesh(this.buffGeometry, buffMaterial);
 
+        var topGroup = new THREE.Group();
+        topGroup.add(topWallMesh);
+
+        if (optionPyramids) {
+            var pMesh = this.GeneratePyramids();
+
+            topGroup.add(pMesh);
+        }
+        //topGroup.rotateX(Math.PI);
+
         // The new system is to create one template mesh and then make copies of those
         // for the remaining walls.
 
-        var bottomWallMesh = topWallMesh.clone(true);
-        console.log(-tunnelSegmentHeight);
-        bottomWallMesh.position.setY(0);
-        bottomWallMesh.position.setZ(-tunnelSegmentDepth);
-        bottomWallMesh.rotateX(Math.PI);
+        var bottomGroup = topGroup.clone(true);
+        bottomGroup.position.setY(0);
+        bottomGroup.position.setZ(-tunnelSegmentDepth);
+        bottomGroup.rotateX(Math.PI);
 
-        var leftWallMesh = topWallMesh.clone(true);
-        console.log(-tunnelSegmentHeight);
-        leftWallMesh.position.setY(0);
-        leftWallMesh.position.setZ(-tunnelSegmentDepth);
-        leftWallMesh.rotateX(Math.PI);
+        var leftGroup = topGroup.clone(true);
+        leftGroup.position.setZ(0);
+        leftGroup.position.setX(0);
+        leftGroup.rotateZ(Math.PI / 2);
 
-        var bottomWallMesh = topWallMesh.clone(true);
-        console.log(-tunnelSegmentHeight);
-        bottomWallMesh.position.setY(0);
-        bottomWallMesh.position.setZ(-tunnelSegmentDepth);
-        bottomWallMesh.rotateX(Math.PI);
+        var rightGroup = leftGroup.clone(true);
+        rightGroup.position.setZ(-tunnelSegmentDepth);
+        rightGroup.position.setX(tunnelSegmentWidth*2);
+        rightGroup.rotateY(Math.PI);
 
         this.Group = new THREE.Group();
-        this.Group.add(topWallMesh);
-        this.Group.add(bottomWallMesh);
+        this.Group.add(topGroup);
+        this.Group.add(bottomGroup);
+        this.Group.add(leftGroup);
+        this.Group.add(rightGroup);
 
         scene.add(this.Group);
 
@@ -196,14 +186,25 @@ class TunnelSegment {
             edgeMesh.position.z = -tunnelSegmentDepth/2;
             this.Group.add(edgeMesh);
         }
-
-        if (optionPyramids) {
-            this.GeneratePyramids();
-        }
     }
 
     GeneratePyramids() {
         //var center = MathUtils.lerp();
+        var pGeo = new THREE.BufferGeometry();
+        var pVerts = [];
+
+        var centerPoint = new THREE.Vector3(-tunnelSegmentWidth,tunnelSegmentHeight,0).lerp(new THREE.Vector3(tunnelSegmentWidth,tunnelSegmentHeight,-tunnelSegmentDepth), .5);
+        centerPoint.y = centerPoint.y + 5;
+        pVerts.push(-tunnelSegmentWidth,tunnelSegmentHeight,0);
+        pVerts.push(tunnelSegmentWidth,tunnelSegmentHeight,0);
+        pVerts.push(centerPoint.x,centerPoint.y,centerPoint.z);
+
+        var pMaterial = new THREE.MeshBasicMaterial( { color: 'pink', side: THREE.DoubleSide} );
+        pGeo.setAttribute( 'position', new THREE.Float32BufferAttribute( pVerts, 3 ) );
+        var pMesh = new THREE.Mesh(pGeo, pMaterial);
+
+        return pMesh;
     }
 }
+
 

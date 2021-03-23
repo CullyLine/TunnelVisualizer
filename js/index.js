@@ -28,7 +28,7 @@ var newTunnelSpeed = 0;
 
 var currentColor = 0xFFFFFF;
 
-var optionRotate = true;
+const optionRotate = false;
 var optionPyramids = true;
 var optionShowEdges = true;
 
@@ -168,7 +168,8 @@ function animate(now) {
 
     newTunnelSpeed = .1;
     var freqAmp = amplitude[freqSlider.value];
-    newTunnelSpeed = freqAmp * .009;
+    newTunnelSpeed = freqAmp * .002;
+    //newTunnelSpeed = 0;
 
     // console.log(visuals.map(function(obj) {
     //     return obj.Enabled;
