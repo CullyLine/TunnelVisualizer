@@ -126,25 +126,30 @@ class TunnelSegment {
 
             topGroup.add(pMesh);
         }
-        //topGroup.rotateX(Math.PI);
+        topGroup.rotateX(Math.PI);
+        topGroup.position.setY(tunnelSegmentHeight*2);
+        topGroup.position.setZ(-tunnelSegmentDepth);
 
         // The new system is to create one template mesh and then make copies of those
         // for the remaining walls.
 
         var bottomGroup = topGroup.clone(true);
-        bottomGroup.position.setY(0);
-        bottomGroup.position.setZ(-tunnelSegmentDepth);
         bottomGroup.rotateX(Math.PI);
+        bottomGroup.position.setY(-tunnelSegmentHeight*2);
+        bottomGroup.position.setZ(0);
 
-        var leftGroup = topGroup.clone(true);
-        leftGroup.position.setZ(0);
-        leftGroup.position.setX(0);
+        var leftGroup = bottomGroup.clone(true);
         leftGroup.rotateZ(Math.PI / 2);
+        leftGroup.rotateX(Math.PI);
+        leftGroup.position.setZ(-tunnelSegmentDepth);
+        leftGroup.position.setX(-tunnelSegmentWidth * 2);
+        leftGroup.position.setY(0);
 
-        var rightGroup = leftGroup.clone(true);
-        rightGroup.position.setZ(-tunnelSegmentDepth);
-        rightGroup.position.setX(tunnelSegmentWidth*2);
-        rightGroup.rotateY(Math.PI);
+        var rightGroup = bottomGroup.clone(true);
+        rightGroup.rotateZ(Math.PI / 2);
+        rightGroup.position.setZ(0);
+        rightGroup.position.setX(tunnelSegmentWidth * 2);
+        rightGroup.position.setY(0);
 
         this.Group = new THREE.Group();
         this.Group.add(topGroup);
@@ -194,12 +199,30 @@ class TunnelSegment {
         var pVerts = [];
 
         var centerPoint = new THREE.Vector3(-tunnelSegmentWidth,tunnelSegmentHeight,0).lerp(new THREE.Vector3(tunnelSegmentWidth,tunnelSegmentHeight,-tunnelSegmentDepth), .5);
-        centerPoint.y = centerPoint.y + 5;
+        centerPoint.y = centerPoint.y + 3;
+
         pVerts.push(-tunnelSegmentWidth,tunnelSegmentHeight,0);
         pVerts.push(tunnelSegmentWidth,tunnelSegmentHeight,0);
         pVerts.push(centerPoint.x,centerPoint.y,centerPoint.z);
 
-        var pMaterial = new THREE.MeshBasicMaterial( { color: 'pink', side: THREE.DoubleSide} );
+        pVerts.push(-tunnelSegmentWidth,tunnelSegmentHeight,-tunnelSegmentDepth);
+        pVerts.push(tunnelSegmentWidth,tunnelSegmentHeight,-tunnelSegmentDepth);
+        pVerts.push(centerPoint.x,centerPoint.y,centerPoint.z);
+
+        pVerts.push(-tunnelSegmentWidth,tunnelSegmentHeight,-tunnelSegmentDepth);
+        pVerts.push(-tunnelSegmentWidth,tunnelSegmentHeight,0);
+        pVerts.push(centerPoint.x,centerPoint.y,centerPoint.z);
+
+        pVerts.push(tunnelSegmentWidth,tunnelSegmentHeight,-tunnelSegmentDepth);
+        pVerts.push(tunnelSegmentWidth,tunnelSegmentHeight,0);
+        pVerts.push(centerPoint.x,centerPoint.y,centerPoint.z);
+
+        var h = getRandomInt(0, 360); // r is a random number between 0 - 255
+        var s = getRandomInt(0, 100); // g is a random number betwen 100 - 200
+        var l = getRandomInt(0, 100); // b is a random number between 0 - 100
+        var hslColor = `hsl(${h}, ${s}%, ${l}%)`;
+
+        var pMaterial = new THREE.MeshBasicMaterial( { color: hslColor, side: THREE.DoubleSide} );
         pGeo.setAttribute( 'position', new THREE.Float32BufferAttribute( pVerts, 3 ) );
         var pMesh = new THREE.Mesh(pGeo, pMaterial);
 

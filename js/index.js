@@ -28,8 +28,8 @@ var newTunnelSpeed = 0;
 
 var currentColor = 0xFFFFFF;
 
-const optionRotate = false;
-var optionPyramids = true;
+const optionRotate = true;
+const optionPyramids = true;
 var optionShowEdges = true;
 
 var analyser;
@@ -85,41 +85,41 @@ async function setup() {
 
     // Load custom text.
     const loader = new THREE.FontLoader();
-    // loader.load( 'resources/Krabby Patty_Regular.json', function ( font ) {
+    loader.load( 'resources/Krabby Patty_Regular.json', function ( font ) {
 
-    //     const textGeo = new THREE.TextGeometry( "Rawr xD", {
+        const textGeo = new THREE.TextGeometry( "hewwo", {
 
-    //         font: font,
+            font: font,
 
-    //         size: 3,
-    //         height: 1,
-    //         curveSegments: 2,
+            size: 1.5,
+            height: 1,
+            curveSegments: 2,
 
-    //         // bevelThickness: .5,
-    //         // bevelSize: .1,
-    //         // bevelEnabled: true
+            // bevelThickness: .5,
+            // bevelSize: .1,
+            // bevelEnabled: true
 
-    //     } );
+        } );
 
-    //     //const centerOffset = - 0.5 * ( textGeo.boundingBox.max.x - textGeo.boundingBox.min.x );
+        //const centerOffset = - 0.5 * ( textGeo.boundingBox.max.x - textGeo.boundingBox.min.x );
 
-    //     const textMaterial = new THREE.MeshBasicMaterial( { color: 'yellow', side: THREE.DoubleSide, wireframe:false } );
+        const textMaterial = new THREE.MeshBasicMaterial( { color: 'yellow', side: THREE.DoubleSide, wireframe:false } );
 
-    //     textMesh = new THREE.Mesh( textGeo, textMaterial );
-    //     textMesh.position.x = -6;
-    //     //mesh.position.y = FLOOR + 67; 
-    //     textMesh.position.z = -10;
-    //     textMesh.position.y = 0;
-    //     //textMesh.position.x = 0;
+        textMesh = new THREE.Mesh( textGeo, textMaterial );
+        textMesh.position.x = -tunnelSegmentWidth + 3.5 ;
+        //mesh.position.y = FLOOR + 67;
+        textMesh.position.z = -5;
+        textMesh.position.y = 0;
+        //textMesh.position.x = 0;
 
-    //     textMesh.castShadow = true;
-    //     textMesh.receiveShadow = true;
+        textMesh.castShadow = true;
+        textMesh.receiveShadow = true;
 
         
 
-    //     scene.add( textMesh );
+        scene.add( textMesh );
 
-    // } );
+    } );
 
     freqSlider = document.getElementById('setZoom');
     freqSlider.max = analyser.frequencyBinCount - 1;
@@ -168,7 +168,7 @@ function animate(now) {
 
     newTunnelSpeed = .1;
     var freqAmp = amplitude[freqSlider.value];
-    newTunnelSpeed = freqAmp * .002;
+    newTunnelSpeed = freqAmp * .008;
     //newTunnelSpeed = 0;
 
     // console.log(visuals.map(function(obj) {
