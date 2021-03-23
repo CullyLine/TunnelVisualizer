@@ -8,7 +8,7 @@ class Tunnel extends Visual {
     }
 
     animate() {
-        if (this.Exiting & this.Segments.every(s => !s.Group.visible)) {
+        if (this.Exiting && this.Segments.every(s => !s.Group.visible)) {
             // speed up tunnel, fade out, and slow down rotation as the tunnel finishes
             //if ()
             this.Enabled = false;
@@ -47,7 +47,7 @@ class Tunnel extends Visual {
                 // Rotate tunnel segments.
                 if (optionRotate) {
     
-                    if (tunnelSegment.SegmentNumber % 2 == 0) { 
+                    if (tunnelSegment.SegmentNumber % 2 === 0) {
                     tunnelSegment.Group.rotation.z += tunnelSegmentRotation; 
                     tunnelSegment.Group.rotation.z += (xNewTunnelSpeed * .01);
                     }
@@ -224,9 +224,8 @@ class TunnelSegment {
 
         var pMaterial = new THREE.MeshBasicMaterial( { color: hslColor, side: THREE.DoubleSide} );
         pGeo.setAttribute( 'position', new THREE.Float32BufferAttribute( pVerts, 3 ) );
-        var pMesh = new THREE.Mesh(pGeo, pMaterial);
 
-        return pMesh;
+        return new THREE.Mesh(pGeo, pMaterial);
     }
 }
 

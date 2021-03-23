@@ -72,8 +72,7 @@ async function setup() {
     // Initialize the tunnel segment positions.
     for (let i = 0; i < tunnel.Segments.length; i++) {
         const tunnelSegment = tunnel.Segments[i];
-        let newZ = (tunnelSegment.SegmentNumber)*-tunnelSegmentDepth;
-        tunnelSegment.Group.position.z = newZ;
+        tunnelSegment.Group.position.z = (tunnelSegment.SegmentNumber)*-tunnelSegmentDepth;
     }
 
     // Setup fps counter.
@@ -143,7 +142,7 @@ async function setup() {
             console.log(visual.title); 
 
             // Exit the current visual.
-            visuals.filter(v => v.Enabled == true)[0].exit();
+            visuals.filter(v => v.Enabled === true)[0].exit();
             visual.enable();
         }
     });
