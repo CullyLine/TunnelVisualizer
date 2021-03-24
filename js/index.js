@@ -15,6 +15,8 @@ var readyToEnableVisual = false;
 
 var stats = new Stats();
 
+var particleField = new ParticleField();
+
 var torus = new Torus();
 
 var tunnel = new Tunnel();
@@ -30,7 +32,8 @@ var currentColor = 0xFFFFFF;
 
 const optionRotate = true;
 const optionPyramids = true;
-var optionShowEdges = true;
+const optionShowEdges = true;
+const optionRandomlyPlacedParticles = true;
 
 var analyser;
 var amplitude;
@@ -83,42 +86,42 @@ async function setup() {
     document.getElementById('container').appendChild( stats.domElement );
 
     // Load custom text.
-    const loader = new THREE.FontLoader();
-    loader.load( 'resources/Krabby Patty_Regular.json', function ( font ) {
-
-        const textGeo = new THREE.TextGeometry( "hewwo", {
-
-            font: font,
-
-            size: 1.5,
-            height: 1,
-            curveSegments: 2,
-
-            // bevelThickness: .5,
-            // bevelSize: .1,
-            // bevelEnabled: true
-
-        } );
-
-        //const centerOffset = - 0.5 * ( textGeo.boundingBox.max.x - textGeo.boundingBox.min.x );
-
-        const textMaterial = new THREE.MeshBasicMaterial( { color: 'yellow', side: THREE.DoubleSide, wireframe:false } );
-
-        textMesh = new THREE.Mesh( textGeo, textMaterial );
-        textMesh.position.x = -tunnelSegmentWidth + 3.5 ;
-        //mesh.position.y = FLOOR + 67;
-        textMesh.position.z = -5;
-        textMesh.position.y = 0;
-        //textMesh.position.x = 0;
-
-        textMesh.castShadow = true;
-        textMesh.receiveShadow = true;
-
-        
-
-        scene.add( textMesh );
-
-    } );
+    // const loader = new THREE.FontLoader();
+    // loader.load( 'resources/Krabby Patty_Regular.json', function ( font ) {
+    //
+    //     const textGeo = new THREE.TextGeometry( "hewwo", {
+    //
+    //         font: font,
+    //
+    //         size: 1.5,
+    //         height: 1,
+    //         curveSegments: 2,
+    //
+    //         // bevelThickness: .5,
+    //         // bevelSize: .1,
+    //         // bevelEnabled: true
+    //
+    //     } );
+    //
+    //     //const centerOffset = - 0.5 * ( textGeo.boundingBox.max.x - textGeo.boundingBox.min.x );
+    //
+    //     const textMaterial = new THREE.MeshBasicMaterial( { color: 'yellow', side: THREE.DoubleSide, wireframe:false } );
+    //
+    //     textMesh = new THREE.Mesh( textGeo, textMaterial );
+    //     textMesh.position.x = -tunnelSegmentWidth + 3.5 ;
+    //     //mesh.position.y = FLOOR + 67;
+    //     textMesh.position.z = -5;
+    //     textMesh.position.y = 0;
+    //     //textMesh.position.x = 0;
+    //
+    //     textMesh.castShadow = true;
+    //     textMesh.receiveShadow = true;
+    //
+    //
+    //
+    //     scene.add( textMesh );
+    //
+    // } );
 
     freqSlider = document.getElementById('setZoom');
     freqSlider.max = analyser.frequencyBinCount - 1;
@@ -183,6 +186,8 @@ function animate(now) {
 
     // Animate the torus.
     torus.animate(now);
+
+    particleField.animate(now);
 
     readyToEnableVisual = false;
 
