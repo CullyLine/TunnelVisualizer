@@ -49,13 +49,29 @@ class Tunnel extends Visual {
     
                     if (tunnelSegment.SegmentNumber % 2 === 0) {
                     tunnelSegment.Group.rotation.z += tunnelSegmentRotation; 
-                    tunnelSegment.Group.rotation.z += (xNewTunnelSpeed * .01);
+                    tunnelSegment.Group.rotation.z += (xNewTunnelSpeed * .02);
                     }
                     else { 
                     tunnelSegment.Group.rotation.z = tunnelSegment.Group.rotation.z - tunnelSegmentRotation; 
-                    tunnelSegment.Group.rotation.z = tunnelSegment.Group.rotation.z - (xNewTunnelSpeed * .08);
+                    tunnelSegment.Group.rotation.z = tunnelSegment.Group.rotation.z - (xNewTunnelSpeed * .02);
                     }
                 }
+
+                // if (i<20) {
+                    // var direction = new THREE.Vector3( 0, 0, -1 ).applyQuaternion( tunnelSegment.Group.quaternion );
+                    var matrix = new THREE.Matrix4();
+                    matrix.extractRotation( tunnelSegment.Group.matrix );
+
+                    //console.log(tunnelSegment.Group.matrix);
+
+                    var direction = new THREE.Vector3( -1, -1, 0 );
+                    direction = direction.applyMatrix4(matrix);
+
+                    tunnelSegment.Group.position.setX(direction.x * 10);
+                    tunnelSegment.Group.position.setY(direction.y * 10);
+                    //console.log(direction);
+                // }
+
             }
         }
     }

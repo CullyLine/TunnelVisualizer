@@ -26,6 +26,7 @@ var tunnelSegmentHeight = 7;
 var tunnelSegmentWidth = 7; 
 var tunnelSegmentReset = 20;
 var tunnelSegmentRotation = .001;
+var tunnelSpeedMultiplier = .007;
 var newTunnelSpeed = 0;
 
 var currentColor = 0xFFFFFF;
@@ -40,6 +41,11 @@ var amplitude;
 var freqSlider;
 
 var keysPressed = [];
+
+var then = 0;
+var delta = 0;
+
+var dancer;
 
 function gotStream(stream) {
     var audioCtx = new AudioContext();
@@ -159,6 +165,17 @@ async function setup() {
 
     visuals.filter(v => v instanceof Tunnel)[0].Enabled = true;
 
+    const video = document.getElementById( 'video' );
+    const videoTexture = new THREE.VideoTexture( video );
+    videoTexture.format = THREE.RGBAFormat;
+    const planeGeo = new THREE.PlaneGeometry(5, 5, 1, 1);
+    var planeMat = new THREE.MeshBasicMaterial( { map: videoTexture, transparent: true, side: THREE.DoubleSide } );
+    dancer = new THREE.Mesh(planeGeo, planeMat);
+    dancer.position.setZ(1);
+    //video.style.display = "none";
+
+    scene.add(dancer);
+
     animate();
 }
 setup();
@@ -166,11 +183,17 @@ setup();
 function animate(now) {
     requestAnimationFrame( animate );
 
+    delta = now - then;
+    then = now;
+
+    //console.log(delta);
+
+
     analyser.getByteFrequencyData(amplitude);
 
     newTunnelSpeed = .1;
     var freqAmp = amplitude[freqSlider.value];
-    newTunnelSpeed = freqAmp * .008;
+    newTunnelSpeed = freqAmp * tunnelSpeedMultiplier;
     //newTunnelSpeed = 0;
 
     // console.log(visuals.map(function(obj) {
@@ -187,8 +210,9 @@ function animate(now) {
     // Animate the torus.
     torus.animate(now);
 
-    particleField.animate(now);
-
+    if (optionRandomlyPlacedParticles) {
+        particleField.animate(now);
+    }
     readyToEnableVisual = false;
 
     renderer.render( scene, camera );
