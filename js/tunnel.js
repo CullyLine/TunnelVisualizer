@@ -4,6 +4,7 @@ class Tunnel extends Visual {
         this.keybind = ['Control', 'Shift', 'Alt', 'F1'];
         this.title = 'Tunnel';
         this.Segments = [];
+        this.fovModifer = .1;
         // s
     }
 
@@ -13,6 +14,9 @@ class Tunnel extends Visual {
             //if ()
             this.Enabled = false;
             this.Exiting = false;
+
+            camera.fov = 70;
+            camera.updateProjectionMatrix();
         }
 
         // Determine where the tunnel segments should go next.
@@ -23,7 +27,16 @@ class Tunnel extends Visual {
                 if (!tunnelSegment.Group.visible) { continue; }
 
                 var xNewTunnelSpeed = newTunnelSpeed;
-                if (this.Exiting) { xNewTunnelSpeed = 10;}
+                if (this.Exiting) {
+                    xNewTunnelSpeed = 2;
+
+                    //console.log(Math.sin(Date.now() * 0.001) * 70 + 70);
+                    if (camera.fov >= 180) { this.fovModifer = -.1; }
+                    if (camera.fov <= 70) { this.fovModifer = .1; }
+                    camera.fov += this.fovModifer;
+                    //console.log(camera.fov);
+                    camera.updateProjectionMatrix();
+                }
     
                 // Determine if this tunnel segment is ready to be placed onto the end or not.
                 let newZ = (tunnelSegment.Group.position.z) + xNewTunnelSpeed;
@@ -49,28 +62,48 @@ class Tunnel extends Visual {
     
                     if (tunnelSegment.SegmentNumber % 2 === 0) {
                     tunnelSegment.Group.rotation.z += tunnelSegmentRotation; 
-                    tunnelSegment.Group.rotation.z += (xNewTunnelSpeed * .02);
+                    tunnelSegment.Group.rotation.z += (xNewTunnelSpeed * .008);
                     }
                     else { 
                     tunnelSegment.Group.rotation.z = tunnelSegment.Group.rotation.z - tunnelSegmentRotation; 
-                    tunnelSegment.Group.rotation.z = tunnelSegment.Group.rotation.z - (xNewTunnelSpeed * .02);
+                    tunnelSegment.Group.rotation.z = tunnelSegment.Group.rotation.z - (xNewTunnelSpeed * .01);
                     }
                 }
 
                 // if (i<20) {
-                    // var direction = new THREE.Vector3( 0, 0, -1 ).applyQuaternion( tunnelSegment.Group.quaternion );
-                    var matrix = new THREE.Matrix4();
-                    matrix.extractRotation( tunnelSegment.Group.matrix );
+                // var direction = new THREE.Vector3( 0, 0, -1 ).applyQuaternion( tunnelSegment.Group.quaternion );
 
-                    //console.log(tunnelSegment.Group.matrix);
+                var matrix = new THREE.Matrix4();
+                matrix.extractRotation( tunnelSegment.Group.matrix );
 
-                    var direction = new THREE.Vector3( -1, -1, 0 );
-                    direction = direction.applyMatrix4(matrix);
+                var dirX = -1;
+                var dirY = -1;
+                //if (tunnelSegment.SegmentNumber == 1) { console.log(tunnelSegment.Group.position.x); }
+                // if (tunnelSegment.Group.position.x >= 0) { dirX = 1; if (tunnelSegment.SegmentNumber == 1) { console.log("Flipped " + tunnelSegment.Group.position);} }
+                //if (tunnelSegment.Group.position.y >= 0) { dirY = 1; }
+                var direction = new THREE.Vector3( dirX, dirY, 0 );
+                direction = direction.applyMatrix4(matrix);
 
-                    tunnelSegment.Group.position.setX(direction.x * 10);
-                    tunnelSegment.Group.position.setY(direction.y * 10);
-                    //console.log(direction);
+                // tunnelSegment.Group.position.setX(direction.x * 1);
+                // tunnelSegment.Group.position.setY(direction.y * 1);
                 // }
+
+                var explosionPower = amplitude[200] * tunnelExplosionPower;
+               // explosionPower = 1;
+                explosionPower = clamp(explosionPower, 0, 900);
+                tunnelSegment.Group.traverse(wall =>
+                {
+                    //var preRot = wall.matrix;
+                    wall.position.setX( explosionPower ); //
+                    //console.log(direction.x * explosionPower);
+                    wall.position.setY( explosionPower ); //direction.y *
+                    //wall.rotateZ(Math.PI / 2);
+                    //wall.rotateX(Math.PI);
+                    //wall.setRotationFromMatrix(preRot);
+                    //wall.updateMatrix();
+                });
+
+                //tunnelSegment.Group.updateMatrix();
 
             }
         }
@@ -129,8 +162,22 @@ class TunnelSegment {
         this.vertices.push(-tunnelSegmentWidth,tunnelSegmentHeight,0);
         this.vertices.push(tunnelSegmentWidth,tunnelSegmentHeight,0);
         this.vertices.push(tunnelSegmentWidth,tunnelSegmentHeight,-tunnelSegmentDepth);
+
+        var buffMaterial;
+        if (colorScheme1 == "" && colorScheme2 == "") {
+            buffMaterial = new THREE.MeshBasicMaterial( { color: hslColor, side: THREE.DoubleSide} );
+        }
+        else {
+            if (this.SegmentNumber % 2 == 0) {
+                buffMaterial = new THREE.MeshBasicMaterial( { color: colorScheme1, side: THREE.DoubleSide});
+            }
+            else {
+                buffMaterial = new THREE.MeshBasicMaterial( { color: colorScheme2, side: THREE.DoubleSide});
+            }
+
+        }
         
-        var buffMaterial = new THREE.MeshBasicMaterial( { color: hslColor, side: THREE.DoubleSide} );
+
         this.buffGeometry.setAttribute( 'position', new THREE.Float32BufferAttribute( this.vertices, 3 ) );
         var topWallMesh = new THREE.Mesh(this.buffGeometry, buffMaterial);
 
@@ -154,16 +201,23 @@ class TunnelSegment {
         bottomGroup.position.setY(-tunnelSegmentHeight*2);
         bottomGroup.position.setZ(0);
 
-        var leftGroup = bottomGroup.clone(true);
+        // var leftGroup = bottomGroup.clone(true);
+        // leftGroup.rotateZ(Math.PI / 2);
+        // leftGroup.rotateX(Math.PI);
+        // leftGroup.position.setZ(-tunnelSegmentDepth);
+        // leftGroup.position.setX(-tunnelSegmentWidth * 2);
+        // leftGroup.position.setY(0);
+
+        var leftGroup = topGroup.clone(true);
         leftGroup.rotateZ(Math.PI / 2);
         leftGroup.rotateX(Math.PI);
-        leftGroup.position.setZ(-tunnelSegmentDepth);
+        leftGroup.position.setZ(0);
         leftGroup.position.setX(-tunnelSegmentWidth * 2);
         leftGroup.position.setY(0);
 
-        var rightGroup = bottomGroup.clone(true);
+        var rightGroup = topGroup.clone(true);
         rightGroup.rotateZ(Math.PI / 2);
-        rightGroup.position.setZ(0);
+        rightGroup.position.setZ(-tunnelSegmentDepth);
         rightGroup.position.setX(tunnelSegmentWidth * 2);
         rightGroup.position.setY(0);
 
@@ -173,10 +227,19 @@ class TunnelSegment {
         this.Group.add(leftGroup);
         this.Group.add(rightGroup);
 
+        topGroup.traverse(wall => {console.log(wall);});
+
+        this.Walls.push(topGroup);
+        this.Walls.push(bottomGroup);
+        this.Walls.push(leftGroup);
+        this.Walls.push(rightGroup);
+
         scene.add(this.Group);
+
 
         // Draw the edges of the walls.
         if (optionShowEdges) {
+            console.log(optionShowEdges);
             var buffMaterial = new THREE.MeshBasicMaterial( {color: `hsl(${h}, ${s}%, ${Math.max(l-10, 0)}%)`, side: THREE.DoubleSide } );
 
             var edgeGeo = new THREE.BoxBufferGeometry(.5, .5, tunnelSegmentDepth);

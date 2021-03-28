@@ -21,12 +21,12 @@ class Torus extends Visual  {
     animate(now) {
         if (this.Enabling && readyToEnableVisual) {
             this.line.visible = true;
-            this.line.material.opacity += now * .000001;
+            this.line.material.opacity += delta * .005;
             if (this.line.material.opacity >= .6) { this.Enabling = false; this.Enabled = true; }
         }
 
         if (this.Exiting) {
-            this.line.material.opacity -= now * .000001;
+            this.line.material.opacity -= delta * .005;
             if (this.line.material.opacity <= 0) { this.Enabled = false; this.Exiting = false; }
         }
         

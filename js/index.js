@@ -1,7 +1,7 @@
 
 
 const scene = new THREE.Scene();
-const camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.01, 1000 );
+const camera = new THREE.PerspectiveCamera( 70, window.innerWidth / window.innerHeight, 0.01, 1000 );
 camera.position.z = 10;
 
 const renderer = new THREE.WebGLRenderer();
@@ -25,16 +25,19 @@ var tunnelSegmentDepth = 10;
 var tunnelSegmentHeight = 7;
 var tunnelSegmentWidth = 7; 
 var tunnelSegmentReset = 20;
-var tunnelSegmentRotation = .001;
-var tunnelSpeedMultiplier = .007;
+var tunnelSegmentRotation = .00001;
+var tunnelSpeedMultiplier = 0.005;
+var tunnelExplosionPower = 0.008;
 var newTunnelSpeed = 0;
 
 var currentColor = 0xFFFFFF;
 
 const optionRotate = true;
 const optionPyramids = true;
-const optionShowEdges = true;
+const optionShowEdges = false;
 const optionRandomlyPlacedParticles = true;
+const colorScheme1 = `hsl(278, 57%, 27%)`;
+const colorScheme2 = `hsl(278, 5%, 5%)`;
 
 var analyser;
 var amplitude;
@@ -188,7 +191,6 @@ function animate(now) {
 
     //console.log(delta);
 
-
     analyser.getByteFrequencyData(amplitude);
 
     newTunnelSpeed = .1;
@@ -202,7 +204,17 @@ function animate(now) {
 
     if (visuals.every(v => !v.Enabled)) { 
         readyToEnableVisual = true; 
-    }   
+    }
+
+    // if (amplitude[200] > 100) {
+    //     console.log(true);
+    //     camera.fov = 170;
+    //     camera.updateProjectionMatrix();
+    // }
+    // else {
+    //     camera.fov = 70;
+    //     camera.updateProjectionMatrix();
+    // }
 
     // Animate the tunnel.
     tunnel.animate();
@@ -227,4 +239,4 @@ function getRandomInt(min, max) {
 
 function clamp(num, min, max) {
     return num <= min ? min : num >= max ? max : num;
-  }
+}
